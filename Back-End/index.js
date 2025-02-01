@@ -7,17 +7,18 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 
-mongoose.connect(config.connectionString);
+const { authenticateToken } = require("./utilities");
 
 const User = require("./models/user");
-const user = require("./models/user");
+
+mongoose.connect(config.connectionString);
 
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: "*" }));
 
 //Create Account
-app.post("/create-account", async (req, res) => {
+app.post("/signup", async (req, res) => {
   const { fullName, email, password } = req.body;
 
   if (!fullName || !email || !password) {
@@ -55,6 +56,62 @@ app.post("/create-account", async (req, res) => {
   });
 
 });
+
+//Login
+app.post("/login", async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ message: "Email Password are required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+        return res.status(400).json({ message: "User not found" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+        return res.status(400).json({ message: "Invalid Credentials" });
+    }
+
+    const accessToken = jwt.sign(
+        { userId: user._id },
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+            expiresIn: "1d",
+        }
+    );
+
+    return res.json({
+        error: false,
+        message: "Login successfull",
+        user: { fullName: user.fullName, email: user.email },
+        accessToken,
+    });
+
+});
+
+//Get User
+app.get("/get-user", authenticateToken, async (req, res) => {
+    const { userId } = req.user;
+
+    const isUser = await User.findOne({ _id: userId });
+
+    if(!isUser) {
+        return res.status(401);
+    }
+
+    return res.json({
+        user: isUser,
+        message: "",
+    });
+});
+
+//Add Travel Story
+app.post("/get-user", authenticateToken, async (req, res) => {
+    
+});    
 
 app.listen(8000);
 module.exports = app;
