@@ -6,6 +6,9 @@ const bcrypt = require("bcrypt");
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const upload = require("./multer");
+const fs = require("fs");
+const path = require("path");
 
 const { authenticateToken } = require("./utilities");
 
@@ -150,6 +153,24 @@ app.get("/get-all-stories", authenticateToken, async (req, res) => {
         res.status(500).json({ error: true, message: error.message });
     }
 });    
+
+//Route to handle image upload
+app.post("/image-upload", upload.single("image"), async (req, res) => {
+    try{
+        if(!req.file) {
+            return res
+            .status(400)
+            .json({ error: true, message: "No image uploaded" });
+        }
+
+        const imageUrl = `http://localhost:8000/uploads/${req.file.filename}`;
+
+        res.status(201).json({ imageUrl });
+    } catch (error) {
+        res.status(500).json({ error: true, message: error.message });
+    }
+});
+
 
 app.listen(8000); 
 module.exports = app;
