@@ -1,5 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import React from 'react'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import React from "react";
 
 import Login from "./pages/Auth/Login";
 import SignUp from "./pages/Auth/SignUp";
@@ -10,6 +15,7 @@ const App = () => {
     <div>
       <Router>
         <Routes>
+          <Route path="/" exact element={<Root />} />
           <Route path="/dashboard" exact element={<Home />} />
           <Route path="/login" exact element={<Login />} />
           <Route path="/signUp" exact element={<SignUp />} />
@@ -17,6 +23,19 @@ const App = () => {
       </Router>
     </div>
   );
-}
+};
 
-export default App
+// Define the Root component to handle the initial redirect
+const Root = () => {
+  // Check if token exists in localStorage
+  const isAuthneticated = !!localStorage.getItem("token");
+
+  // Redirect to dashboard if authenticated, otherwise to login
+  return isAuthneticated ? (
+    <Navigate to="/dashboard" />
+  ) : (
+    <Navigate to="/login" />
+  );
+};
+
+export default App;
