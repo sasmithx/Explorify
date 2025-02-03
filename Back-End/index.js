@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const config = require("./config.json");
+// const config = require("./config.json");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const express = require("express");
@@ -16,11 +16,18 @@ const User = require("./models/user");
 const TravelStory = require("./models/travel-story");
 const { error } = require("console");
 
-mongoose.connect(config.connectionString);
+//mongoose.connect(config.connectionString);
+
+// Local MongoDB connection
+mongoose.connect("mongodb://localhost:27017/explorify", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: "*" }));
+
 
 //Create Account
 app.post("/signup", async (req, res) => {
@@ -369,5 +376,7 @@ app.get("/travel-stories/filter", authenticateToken, async (req, res) => {
 });
 
 
-app.listen(8000);
+app.listen(8000, () => {
+  console.log("Server running on port 8000");
+});
 module.exports = app;

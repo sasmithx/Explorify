@@ -32,11 +32,10 @@ const Home = () => {
     return () => {};
   }, []);
   
-
-
   return (
     <>
       <Navbar userInfo={userInfo}/>
+      {JSON.stringify(userInfo)}
     </>
   )
 }
