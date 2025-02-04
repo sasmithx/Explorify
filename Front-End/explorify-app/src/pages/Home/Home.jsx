@@ -5,8 +5,9 @@ import { useEffect } from 'react';
 
 const Home = () => {
 
-  const navigate = useNavigate()
-  const [userInfo, setUserInfo] = useState(null)
+  const navigate = useNavigate();
+  const [userInfo, setUserInfo] = useState(null);
+  const [allStories, setAllStories] = useState([]);
 
   //Get User Info
   const getUserInfo = async () => {
@@ -26,18 +27,39 @@ const Home = () => {
     }
   }
 
+  //Get All Travel Stories
+  const getAllTravelStories = async () => {
+    try{
+      const response = await axiosInstance.get("/get-all-stories");
+      if(response.data && response.data.stories){
+        //Set all stories if data exists
+        setAllStories(response.data.stories)
+      }
+      
+    } catch(error){
+      console.log("An unexpected error occured. Please try again.");
+    }
+  }
+
   useEffect(() => {
     getUserInfo();
-    
+    getAllTravelStories();
     return () => {};
   }, []);
   
   return (
     <>
-      <Navbar userInfo={userInfo}/>
-      {JSON.stringify(userInfo)}
+      <Navbar userInfo={userInfo} />
+
+      <div className="container py-10 mx-auto">
+        <div className="flex gap-7">
+          <div className="flex-1"></div>
+
+          <div className="w-[320px]"></div>
+        </div>
+      </div>
     </>
-  )
-}
+  );
+};
 
 export default Home

@@ -13,7 +13,7 @@ const Navbar = ({ userInfo }) => {
     };
     
   return (
-    <div className='sticky top-0 z-10 flex items-center justify-between px-6 py-2 bg-white drop-shadow'>
+    <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-2 bg-white drop-shadow">
         <img src={LOGO} alt="Explorify" className="h-9" />
 
         {isToken && <ProfileInfo userInfo={userInfo} onLogout={onLogout} />}
