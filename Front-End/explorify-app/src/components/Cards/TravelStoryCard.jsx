@@ -10,7 +10,7 @@ const TravelStoryCard = ({
   story,
   visitedLocation,
   isFavourite,
-  onFavoriteClick,
+  onFavouriteClick,
   onClick,
 }) => {
   return (
@@ -18,11 +18,11 @@ const TravelStoryCard = ({
       <img
         src={imgUrl}
         alt={title}
-        className="object-cover w-full h-56 rounded-lg cursor-pointer"
+        className="object-cover w-full h-56 rounded-lg"
         onClick={onClick}
       />
 
-      <button className="absolute flex items-center justify-center w-12 h-12 border rounded-lg border-white/30 bg-white/40 top-4 right-4" onClick={onFavoriteClick}>
+      <button className="absolute flex items-center justify-center w-12 h-12 border rounded-lg border-white/30 bg-white/40 top-4 right-4" onClick={onFavouriteClick}>
         <FaHeart
           className={`icon-btn ${isFavourite ? "text-red-500" : "text-white"}`}
         />
