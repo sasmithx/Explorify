@@ -4,7 +4,15 @@
 @tailwind components;
 @tailwind utilities;
 
+.rdp-root {
+    --rdp-accent-color: #01b0cb;
+    --rdp-accent-background-color: #dffbff;
+    --rdp-day_button-border-radius: 8px;
+    --rdp-selected-font: bold medium var(--rdp-font-family);
+  }
+
 @layer base{
+  
   html {
     font-family: "Poppins", "sans-serif";
   }
