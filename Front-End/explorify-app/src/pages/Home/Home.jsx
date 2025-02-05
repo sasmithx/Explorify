@@ -2,16 +2,25 @@ import React, { useState } from 'react';
 import Navbar from '../../components/Navbar';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { MdAdd } from 'react-icons/md';
+import Modal from 'react-modal';
 import TravelStoryCard from '../../components/Cards/TravelStoryCard';
 import axiosInstance from '../../utils/axiosInstance';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import AddEditTravelStory from '../Home/AddEditTravelStory';
 
 const Home = () => {
 
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
   const [allStories, setAllStories] = useState([]);
+
+  const[openAddEditModal, setOpenAddEditModal] = useState({
+    isShown: false,
+    type: "add",
+    data: null
+  });
 
   //Get User Info
   const getUserInfo = async () => {
@@ -75,7 +84,10 @@ const Home = () => {
   
   useEffect(() => {
     getUserInfo();
-    getAllTravelStories(); 
+    getAllTravelStories();
+    toast.success("Welcome To Explorify", {
+      position: "bottom-left",
+    });
     return () => {};
   }, []);
   
@@ -113,6 +125,38 @@ const Home = () => {
           <div className="w-[320px]"></div>
         </div>
       </div>
+
+      {/* {Add & edit Travel Story Model} */}
+      <Modal
+        isOpen={openAddEditModal.isShown}
+        onRequestClose={() => {}}
+        style={{
+          overlay: {
+            backgroundColor: "rgba(0,0,0,0.2)",
+            zIndex: 999,
+          },
+        }}
+        appElement={document.getElementById("root")}
+        className="model-box"
+      >
+        <AddEditTravelStory 
+         type={openAddEditModal.type}
+          storyInfo={openAddEditModal.data}
+          onClose={() => {
+            setOpenAddEditModal({ isShown: false, type: "add", data: null });
+          }}
+          getAllTravelStories={getAllTravelStories}
+        />
+      </Modal>  
+      <button
+        className="fixed flex items-center justify-center w-16 h-16 rounded-full bg-primary hover:bg-cyan-400 right-10 bottom-10"
+        onClick={() => {
+          setOpenAddEditModal({ isShown: true, type: "add", data: null });
+        }}
+      >    
+      
+      <MdAdd className="text-[32px] text-white" />
+      </button>
       
       <ToastContainer />
     </>
