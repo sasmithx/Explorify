@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { MdAdd, MdDeleteOutline, MdUpdate, MdClose } from "react-icons/md";
 import DateSelector from "../../components/Input/DateSelector";
+import ImageSelector from "../../components/Input/ImageSelector";
 
 const AddEditTravelStory = ({
   storyInfo,
@@ -59,6 +60,8 @@ const AddEditTravelStory = ({
             <DateSelector date={visitedDate} setDate={setVisitedDate} />
           </div>
 
+          <ImageSelector image={storyImg} setImg={setStoryImg} />
+
           <div className="flex flex-col gap-2 mt-4">
             <label className="input-label">STORY</label>
             <textarea
@@ -68,7 +71,7 @@ const AddEditTravelStory = ({
               rows={10}
               value={story}
               onChange={({ target }) => setStory(target.value)}
-            />  
+            />
           </div>
         </div>
       </div>
