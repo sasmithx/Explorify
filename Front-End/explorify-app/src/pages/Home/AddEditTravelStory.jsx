@@ -2,6 +2,11 @@ import React, { useState } from "react";
 import { MdAdd, MdDeleteOutline, MdUpdate, MdClose } from "react-icons/md";
 import DateSelector from "../../components/Input/DateSelector";
 import ImageSelector from "../../components/Input/ImageSelector";
+import TagInput from "../../components/Input/TagInput";
+import { toast } from "react-toastify";
+import axiosInstance from "../../utils/axiosInstance";
+import moment from "moment";
+import uploadImage from "../../utils/uploadImage"; // Ensure this import is correct
 
 const AddEditTravelStory = ({
   storyInfo,
@@ -14,13 +19,97 @@ const AddEditTravelStory = ({
   const [story, setStory] = useState("");
   const [visitedLocation, setVisitedLocation] = useState([]);
   const [visitedDate, setVisitedDate] = useState(null);
+  const [error, setError] = useState("");
 
-  const handleAddOrUpdateClick = () => {};
+  // Add New Travel Story
+  const addNewTravelStory = async () => {
+    try {
+      let imageUrl = "";
 
-  //Delete story image and update the story
-  const handleDeleteStoryImg = async () => {
-    
-  }
+      // Upload image if present
+      if (storyImg) {
+        const imgUploadRes = await uploadImage(storyImg);
+        imageUrl = imgUploadRes.imageUrl || "";
+      }
+
+      const response = await axiosInstance.post("/add-travel-story", {
+        title,
+        story,
+        imageUrl,
+        visitedLocation,
+        visitedDate: visitedDate
+          ? moment(visitedDate).valueOf()
+          : moment().valueOf(),
+      });
+
+      if (response.data && response.data.story) {
+        toast.success("Story added successfully!");
+        getAllTravelStories(); // Refresh the stories list
+        onClose(); // Close the form
+      }
+    } catch (err) {
+      console.error("Error adding the story:", err);
+      toast.error("Failed to add the story. Please try again.");
+    }
+  };
+
+  // Update Travel Story
+  const updateTravelStory = async () => {
+    try {
+      let imageUrl = "";
+
+      if (storyImg) {
+        const imgUploadRes = await uploadImage(storyImg);
+        imageUrl = imgUploadRes.imageUrl || "";
+      }
+
+      const response = await axiosInstance.put(
+        `/update-travel-story/${storyInfo.id}`,
+        {
+          title,
+          story,
+          imageUrl,
+          visitedLocation,
+          visitedDate: visitedDate
+            ? moment(visitedDate).valueOf()
+            : moment().valueOf(),
+        }
+      );
+
+      if (response.data && response.data.story) {
+        toast.success("Story updated successfully!");
+        getAllTravelStories(); // Refresh the list
+        onClose(); // Close the form
+      }
+    } catch (err) {
+      console.error("Error updating the story:", err);
+      toast.error("Failed to update the story. Please try again.");
+    }
+  };
+
+  const handleAddOrUpdateClick = () => {
+    if (!title) {
+      setError("Title is required");
+      return;
+    }
+
+    if (!story) {
+      setError("Story is required");
+      return;
+    }
+
+    setError("");
+
+    if (type === "edit") {
+      updateTravelStory();
+    } else {
+      addNewTravelStory();
+    }
+  };
+
+  const handleDeleteStoryImg = () => {
+    setStoryImg(null);
+  };
 
   return (
     <div>
@@ -32,15 +121,13 @@ const AddEditTravelStory = ({
         <div>
           <div className="flex items-center gap-3 p-2 rounded-l-lg bg-cyan-50/50">
             {type === "add" ? (
-              <button className="btn-small" onClick={() => {}}>
+              <button className="btn-small" onClick={handleAddOrUpdateClick}>
                 <MdAdd className="text-lg" /> ADD STORY
               </button>
             ) : (
-              <>
-                <button className="btn-small" onClick={handleAddOrUpdateClick}>
-                  <MdUpdate className="text-lg" /> UPDATE STORY
-                </button>
-              </>
+              <button className="btn-small" onClick={handleAddOrUpdateClick}>
+                <MdUpdate className="text-lg" /> UPDATE STORY
+              </button>
             )}
 
             <button className="" onClick={onClose}>
@@ -49,6 +136,8 @@ const AddEditTravelStory = ({
           </div>
         </div>
       </div>
+
+      {error && <p className="pt-2 text-xs text-right text-red-500">{error}</p>}
 
       <div>
         <div className="flex flex-col flex-1 gap-2 pt-4">
@@ -81,6 +170,11 @@ const AddEditTravelStory = ({
               value={story}
               onChange={({ target }) => setStory(target.value)}
             />
+          </div>
+
+          <div className="pt-3">
+            <label className="input-label">VISITED LOCATIONS</label>
+            <TagInput tags={visitedLocation} setTags={setVisitedLocation} />
           </div>
         </div>
       </div>
