@@ -10,11 +10,16 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AddEditTravelStory from "../Home/AddEditTravelStory";
 import ViewTravelStory from "../Home/ViewTravelStory";
+import EmptyCard from "../../components/Cards/EmptyCard";
+import EmptyImg from "../../assets/images/airplane.png";
 
 const Home = () => {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
   const [allStories, setAllStories] = useState([]);
+
+  const [SearchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState('');
 
   const [openAddEditModal, setOpenAddEditModal] = useState({
     isShown: false,
@@ -97,9 +102,57 @@ const Home = () => {
     return () => {};
   }, []);
 
+  //Delete Story
+  const deleteTravelStory = async (data) => {
+    const storyId = data._id;
+
+    try {
+      const response = await axiosInstance.delete("/delete-story/" + storyId);
+
+      if (response.data && !response.data.error) {
+        toast.error("Story deleted successfully");
+        setOpenViewModal((prevState) => ({ ...prevState, isShown: false }));
+        getAllTravelStories();
+      }
+    } catch (error) {
+      // Handle unexpected errors
+      console.log("An unexpected error occured. Please try again.");
+    }
+  };
+
+  //Search Story
+  const onSearchStory = async (query) => {
+    try {
+      const response = await axiosInstance.get("/search",{
+        params: {
+          query,
+        },
+      });
+
+      if (response.data && response.data.stories) {
+        setFilterType("search");
+        setAllStories(response.data.stories);
+      }
+    } catch (error) {
+      // Handle unexpected errors
+      console.log("An unexpected error occured. Please try again.");
+    }
+  };
+
+  const handleClearSearch = async () => {
+    setFilterType("");
+    getAllTravelStories();
+  };
+
   return (
     <>
-      <Navbar userInfo={userInfo} />
+      <Navbar
+        userInfo={userInfo}
+        SearchQuery={SearchQuery}
+        setSearchQuery={setSearchQuery}
+        onSearchNote={onSearchStory}
+        handleClearSearch={handleClearSearch}
+      />
 
       <div className="container py-10 mx-auto">
         <div className="flex gap-7">
@@ -124,7 +177,12 @@ const Home = () => {
                 })}
               </div>
             ) : (
-              <>No Stories Added Yet.</>
+              <EmptyCard
+                imgSrc={EmptyImg}
+                message={
+                  "Start creating your first Travel Story! Click the 'Add' button to jot down your thoughts, ideas, and memories. Let's get started!"
+                }
+              />
             )}
           </div>
 
@@ -177,7 +235,9 @@ const Home = () => {
             setOpenViewModal((prevState) => ({ ...prevState, isShown: false }));
             handleEdit(openViewModal.data || null);
           }}
-          onDeleteClick={() => {}}
+          onDeleteClick={() => {
+            deleteTravelStory(openViewModal.data || null);
+          }}
         />
       </Modal>
 

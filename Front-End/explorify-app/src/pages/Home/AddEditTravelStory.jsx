@@ -62,31 +62,29 @@ const AddEditTravelStory = ({
     const storyId = storyInfo._id;
 
     try {
-      let imageUrl = "";
+      let imageUrl = storyInfo.imageUrl || "";
+
+      // Upload image if it's a new file
+      if (storyImg instanceof File) {
+        const imgUploadRes = await uploadImage(storyImg);
+        imageUrl = imgUploadRes.imageUrl || "";
+      }
+
+      // Ensure locations are comma-separated when stored
+      const formattedLocations = visitedLocation.join(", ");
 
       const postData = {
         title,
         story,
-        imageUrl: storyInfo.imageUrl || "",
+        imageUrl,
         visitedLocation,
         visitedDate: visitedDate
           ? moment(visitedDate).valueOf()
           : moment().valueOf(),
       };
 
-      if (typeof setStoryImg === "object") {
-        //Upload New Image
-        const imgUploadRes = await uploadImage(storyImg);
-        imageUrl = imgUploadRes.imageUrl || "";
-
-        postData =  {
-          ...postData,
-          imageUrl: imageUrl,
-        };
-      }
-
       const response = await axiosInstance.put(
-        "/edit-story/" + storyId,
+        `/edit-story/${storyId}`,
         postData
       );
 
@@ -96,10 +94,12 @@ const AddEditTravelStory = ({
         onClose(); // Close the form
       }
     } catch (err) {
-      console.error("Error adding the story:", err);
-      toast.error("Failed to add the story. Please try again.");
+      console.error("Error updating the story:", err);
+      toast.error("Failed to update the story. Please try again.");
     }
   };
+
+  
 
   const handleAddOrUpdateClick = () => {
     if (!title) {
