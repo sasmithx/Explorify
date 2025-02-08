@@ -65,27 +65,33 @@ const AddEditTravelStory = ({
       let imageUrl = "";
 
       const postData = {
-        
-      }
-      
-      // Upload image if present
-      if (storyImg) {
-        const imgUploadRes = await uploadImage(storyImg);
-        imageUrl = imgUploadRes.imageUrl || "";
-      }
-
-      const response = await axiosInstance.put("/edit-story/" + storyInfo._id, {
         title,
         story,
-        imageUrl: imageUrl || "",
+        imageUrl: storyInfo.imageUrl || "",
         visitedLocation,
         visitedDate: visitedDate
           ? moment(visitedDate).valueOf()
           : moment().valueOf(),
-      });
+      };
+
+      if (typeof setStoryImg === "object") {
+        //Upload New Image
+        const imgUploadRes = await uploadImage(storyImg);
+        imageUrl = imgUploadRes.imageUrl || "";
+
+        postData =  {
+          ...postData,
+          imageUrl: imageUrl,
+        };
+      }
+
+      const response = await axiosInstance.put(
+        "/edit-story/" + storyId,
+        postData
+      );
 
       if (response.data && response.data.story) {
-        toast.success("Story added successfully!");
+        toast.success("Story Updated Successfully!");
         getAllTravelStories(); // Refresh the stories list
         onClose(); // Close the form
       }
