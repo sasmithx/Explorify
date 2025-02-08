@@ -17,6 +17,11 @@ const AddEditTravelStory = ({
 
   const handleAddOrUpdateClick = () => {};
 
+  //Delete story image and update the story
+  const handleDeleteStoryImg = async () => {
+    
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -60,7 +65,11 @@ const AddEditTravelStory = ({
             <DateSelector date={visitedDate} setDate={setVisitedDate} />
           </div>
 
-          <ImageSelector image={storyImg} setImg={setStoryImg} />
+          <ImageSelector
+            image={storyImg}
+            setImage={setStoryImg}
+            handleDeleteImg={handleDeleteStoryImg}
+          />
 
           <div className="flex flex-col gap-2 mt-4">
             <label className="input-label">STORY</label>
