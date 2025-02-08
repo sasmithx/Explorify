@@ -14,11 +14,15 @@ const AddEditTravelStory = ({
   onClose,
   getAllTravelStories,
 }) => {
-  const [title, setTitle] = useState("");
-  const [storyImg, setStoryImg] = useState(null);
-  const [story, setStory] = useState("");
-  const [visitedLocation, setVisitedLocation] = useState([]);
-  const [visitedDate, setVisitedDate] = useState(null);
+  const [title, setTitle] = useState(storyInfo?.title || "");
+  const [storyImg, setStoryImg] = useState(storyInfo?.imageUrl || null);
+  const [story, setStory] = useState(storyInfo?.story || "");
+  const [visitedLocation, setVisitedLocation] = useState(
+    storyInfo?.visitedLocation || []
+  );
+  const [visitedDate, setVisitedDate] = useState(
+    storyInfo?.visitedDate || null
+  );
   const [error, setError] = useState("");
 
   // Add New Travel Story
@@ -55,35 +59,39 @@ const AddEditTravelStory = ({
 
   // Update Travel Story
   const updateTravelStory = async () => {
+    const storyId = storyInfo._id;
+
     try {
       let imageUrl = "";
 
+      const postData = {
+        
+      }
+      
+      // Upload image if present
       if (storyImg) {
         const imgUploadRes = await uploadImage(storyImg);
         imageUrl = imgUploadRes.imageUrl || "";
       }
 
-      const response = await axiosInstance.put(
-        `/update-travel-story/${storyInfo.id}`,
-        {
-          title,
-          story,
-          imageUrl,
-          visitedLocation,
-          visitedDate: visitedDate
-            ? moment(visitedDate).valueOf()
-            : moment().valueOf(),
-        }
-      );
+      const response = await axiosInstance.put("/edit-story/" + storyInfo._id, {
+        title,
+        story,
+        imageUrl: imageUrl || "",
+        visitedLocation,
+        visitedDate: visitedDate
+          ? moment(visitedDate).valueOf()
+          : moment().valueOf(),
+      });
 
       if (response.data && response.data.story) {
-        toast.success("Story updated successfully!");
-        getAllTravelStories(); // Refresh the list
+        toast.success("Story added successfully!");
+        getAllTravelStories(); // Refresh the stories list
         onClose(); // Close the form
       }
     } catch (err) {
-      console.error("Error updating the story:", err);
-      toast.error("Failed to update the story. Please try again.");
+      console.error("Error adding the story:", err);
+      toast.error("Failed to add the story. Please try again.");
     }
   };
 
@@ -112,7 +120,7 @@ const AddEditTravelStory = ({
   };
 
   return (
-    <div>
+    <div className="relative">
       <div className="flex items-center justify-between">
         <h5 className="text-xl font-medium text-slate-700">
           {type === "add" ? "Add Story" : "Update Story"}
