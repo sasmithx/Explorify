@@ -12,6 +12,9 @@ import AddEditTravelStory from "../Home/AddEditTravelStory";
 import ViewTravelStory from "../Home/ViewTravelStory";
 import EmptyCard from "../../components/Cards/EmptyCard";
 import EmptyImg from "../../assets/images/airplane.png";
+import { DayPicker } from "react-day-picker";
+import moment from "moment";
+import axios from "axios";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -19,7 +22,9 @@ const Home = () => {
   const [allStories, setAllStories] = useState([]);
 
   const [SearchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState('');
+  const [filterType, setFilterType] = useState("");
+
+  const [dateRange, setDateRange] = useState({ from: null, to: null });
 
   const [openAddEditModal, setOpenAddEditModal] = useState({
     isShown: false,
@@ -123,7 +128,7 @@ const Home = () => {
   //Search Story
   const onSearchStory = async (query) => {
     try {
-      const response = await axiosInstance.get("/search",{
+      const response = await axiosInstance.get("/search", {
         params: {
           query,
         },
@@ -142,6 +147,69 @@ const Home = () => {
   const handleClearSearch = async () => {
     setFilterType("");
     getAllTravelStories();
+  };
+
+  // //Handle Filter Travel Story By Date Range
+  // const filterStoriesByDate = async (day) => {
+  //   try{
+  //     const startDate = day.from ? moment(day.from).valueOf() : null;
+  //     const endDate = day.to ? moment(day.to).valueOf() : null;
+
+  //     if(startDate && endDate) {
+  //       const response = await axiosInstance.get("/travel-stories/filter", {
+
+  //         params: { startDate, endDate },
+  //     });
+  //     }
+
+  //   }catch(error){
+  //     // Handle unexpected errors
+  //     console.log("An unexpected error occured. Please try again.");
+  //   }
+  // };
+
+  // //Handle Date Range Select
+  // const handleDayClick = (day)=> {
+  //   setDateRange(day);
+  //   filterStoriesByDate(day);
+  // }
+
+  //Handle Filter Travel Story By Date Range
+  const filterStoriesByDate = async (day) => {
+    try {
+      const startDate = day.from ? moment(day.from).valueOf() : null;
+      const endDate = day.to ? moment(day.to).valueOf() : null;
+
+      // Only make API call if at least one date is selected
+      if (startDate || endDate) {
+        const response = await axiosInstance.get("/travel-stories/filter", {
+          params: {
+            startDate: startDate || undefined,
+            endDate: endDate || undefined,
+          },
+        });
+
+        if (response.data && response.data.stories) {
+          setAllStories(response.data.stories);
+        } else {
+          setAllStories([]);
+          toast.info("No stories found in this date range");
+        }
+      }
+    } catch (error) {
+      console.error("Filter error:", error);
+      toast.error("Failed to filter stories. Please try again.");
+    }
+  };
+
+  //Handle Date Range Select
+  const handleDayClick = async (day) => {
+    try {
+      setDateRange(day);
+      await filterStoriesByDate(day);
+    } catch (error) {
+      console.error("Date selection error:", error);
+    }
   };
 
   return (
@@ -186,7 +254,19 @@ const Home = () => {
             )}
           </div>
 
-          <div className="w-[320px]"></div>
+          <div className="w-[320px]">
+            <div className="bg-white rounded-lg shadow-slate-200/60 lg shadow- border-slate-200">
+              <div className="p-3">
+                <DayPicker
+                  captionLayout="dropdown-buttons"
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={handleDayClick}
+                  pageNavigation
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
