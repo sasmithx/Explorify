@@ -15,3 +15,16 @@ export const getInitials = (name) => {
 
     return initials.toUpperCase();
 };    
+
+export const getEmptyCardMessage = (filterType) => {
+    switch (filterType) {
+        case "search":
+            return `No results found for your search.`;
+
+        case "date":
+            return `No results found for your date range.`;    
+
+        default:
+            return `Start creating your first Travel Story! Click the 'Add' button to jot down your thoughts, ideas, and memories. Let's get started!`;
+    }            
+};

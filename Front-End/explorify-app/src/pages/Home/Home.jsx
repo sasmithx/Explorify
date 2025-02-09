@@ -14,7 +14,8 @@ import EmptyCard from "../../components/Cards/EmptyCard";
 import EmptyImg from "../../assets/images/airplane.png";
 import { DayPicker } from "react-day-picker";
 import moment from "moment";
-import axios from "axios";
+import FilterInfoTitle from "../../components/Cards/FilterInfoTitle";
+import { getEmptyCardMessage } from "../../utils/helper";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -91,7 +92,14 @@ const Home = () => {
 
       if (response.data && response.data.story) {
         toast.success("Story updated successfully");
-        getAllTravelStories();
+
+        if (filterType === "search" && SearchQuery) {
+          onSearchStory(SearchQuery);
+        } else if (filterType === "date") {
+          filterStoriesByDate(dateRange);
+        } else {
+          getAllTravelStories();
+        }
       }
     } catch (error) {
       console.log("An unexpected error occured. Please try again.");
@@ -149,32 +157,6 @@ const Home = () => {
     getAllTravelStories();
   };
 
-  // //Handle Filter Travel Story By Date Range
-  // const filterStoriesByDate = async (day) => {
-  //   try{
-  //     const startDate = day.from ? moment(day.from).valueOf() : null;
-  //     const endDate = day.to ? moment(day.to).valueOf() : null;
-
-  //     if(startDate && endDate) {
-  //       const response = await axiosInstance.get("/travel-stories/filter", {
-
-  //         params: { startDate, endDate },
-  //     });
-  //     }
-
-  //   }catch(error){
-  //     // Handle unexpected errors
-  //     console.log("An unexpected error occured. Please try again.");
-  //   }
-  // };
-
-  // //Handle Date Range Select
-  // const handleDayClick = (day)=> {
-  //   setDateRange(day);
-  //   filterStoriesByDate(day);
-  // }
-
-  //Handle Filter Travel Story By Date Range
   const filterStoriesByDate = async (day) => {
     try {
       const startDate = day.from ? moment(day.from).valueOf() : null;
@@ -212,6 +194,12 @@ const Home = () => {
     }
   };
 
+  const resetFilter = async () => {
+    setDateRange({ from: null, to: null });
+    setFilterType("");
+    getAllTravelStories();
+  };
+
   return (
     <>
       <Navbar
@@ -223,6 +211,14 @@ const Home = () => {
       />
 
       <div className="container py-10 mx-auto">
+        <FilterInfoTitle
+          filterType={filterType}
+          filterDates={dateRange}
+          onClear={() => {
+            resetFilter();
+          }}
+        />
+
         <div className="flex gap-7">
           <div className="flex-1">
             {allStories.length > 0 ? (
@@ -247,9 +243,7 @@ const Home = () => {
             ) : (
               <EmptyCard
                 imgSrc={EmptyImg}
-                message={
-                  "Start creating your first Travel Story! Click the 'Add' button to jot down your thoughts, ideas, and memories. Let's get started!"
-                }
+                message={getEmptyCardMessage(filterType)}
               />
             )}
           </div>
