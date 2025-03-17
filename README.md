@@ -1,10 +1,7 @@
 <a id="readme-top"></a>
 
 <!-- PROJECT LOGO -->
-<br />
 <div align="center">
-  <h2 align="center">Explorify</h2>
-
   <p align="center">
     
   </p>
