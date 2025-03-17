@@ -66,7 +66,7 @@ Ensure you have the following installed:
 
 #### **1️⃣ Clone the Repository**  
 ```sh
-https://github.com/sasmithx/Explorify.git
+https://github.com/sasmithx/Explorify-Redux.git
 ```
 
 
